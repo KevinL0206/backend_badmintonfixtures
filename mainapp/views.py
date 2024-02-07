@@ -54,7 +54,7 @@ class ClubPlayersDisplayCreateView(APIView): # this class will display all the p
             userInstance = User.objects.get(username = currentUser)
             clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
 
-            if player.objects.filter(playerName=serializer.validated_data['playerName'],club=clubInstance):
+            if player.objects.filter(playerName=serializer.validated_data['playerName'],club=clubInstance.exists()):
                 return Response({"detail": "Player already exists"}, status=status.HTTP_400_BAD_REQUEST)
             playerInstance = serializer.save(club=clubInstance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
