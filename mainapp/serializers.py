@@ -30,25 +30,8 @@ class matchSerializer(serializers.ModelSerializer):
         read_only_fields = ('matchID',)
 
 class SessionPlayersSerializer(serializers.Serializer):
-    players = serializers.ListField(child=serializers.CharField())
-
-    def to_internal_value(self, data):
-        # Convert player names to player instances
-        players = data.get('players')
-        if players is not None:
-            clubname = self.context['view'].kwargs['clubname']
-            username = self.context['view'].kwargs['username']
-            userInstance = User.objects.get(username=username)
-            clubInstance = club.objects.get(clubName=clubname, clubOrganiser=userInstance)
-            player_instances = []
-            for player_name in players:
-                try:
-                    player_instance = player.objects.get(playerName=player_name, club=clubInstance)
-                    player_instances.append(player_instance)
-                except player.DoesNotExist:
-                    raise serializers.ValidationError(f"Player {player_name} does not exist")
-            data['players'] = player_instances
-        return super().to_internal_value(data)
+    model = player
+    fields = ('playerName',)
 
 class UpdateMatchSerializer(serializers.ModelSerializer):
     class Meta:
