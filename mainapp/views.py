@@ -127,7 +127,7 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         sessionPlayers = sessionInstance.players.all() # get all the players in the session
-        otherPlayers = player.objects.filter(club=clubInstance).exclude(playerName__in=sessionPlayers) # get all the players in the club who are not in the session
+        otherPlayers = player.objects.filter(club=clubInstance).exclude(playerid__in=sessionPlayers) # get all the players in the club who are not in the session
 
         serializer = ClubPlayersSerializer(otherPlayers, many=True)
         return Response(serializer.data)
