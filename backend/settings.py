@@ -52,6 +52,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://badmintonfixtures.netlify.app"
 ]
 
 REST_FRAMEWORK = {
