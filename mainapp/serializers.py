@@ -9,7 +9,13 @@ class ClubSerializer(serializers.ModelSerializer):
 class ClubPlayersSerializer(serializers.ModelSerializer):
     class Meta:
         model = player
-        fields = ('playerName',)
+        fields = ('playerName', 'club',)
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=player.objects.all(),
+                fields=('playerName', 'club',)
+            )
+        ]
 
 class SessionSerializer(serializers.ModelSerializer):
     class Meta:

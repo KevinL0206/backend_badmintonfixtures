@@ -47,15 +47,18 @@ class ClubPlayersDisplayCreateView(APIView): # this class will display all the p
             return Response({'message': 'Unauthorized'}, status=401)
         if request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
-        serializer = ClubPlayersSerializer(data=request.data)
+        currentUser = username
+        userInstance = User.objects.get(username = currentUser)
+        clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
+
+        # Add club to the request data
+        data = request.data.copy()
+        data['club'] = clubInstance
+
+        serializer = ClubPlayersSerializer(data=data)
         print(serializer.is_valid())
         if serializer.is_valid():
-            currentUser = username
-            userInstance = User.objects.get(username = currentUser)
-            clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
-
-            if player.objects.filter(playerName=serializer.validated_data['playerName'],club=clubInstance.exists()):
-                return Response({"detail": "Player already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            
             playerInstance = serializer.save(club=clubInstance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
