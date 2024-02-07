@@ -10,6 +10,7 @@ from django.utils import timezone
 from .models import club,player,match,session
 from rest_framework.permissions import IsAuthenticated
 from .functions import calcGameElo
+import random
 
 class ClubDisplayCreateView(APIView): # this class will display all the clubs created by the user and also create a new club
     def get(self, request, username, format=None): # this function will return all the clubs created by the user
@@ -207,15 +208,21 @@ class CreateMatchView(APIView): # this class will create a match
         clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         freePlayers = list(sessionInstance.players.filter(inGameFlag = False).order_by('elo'))
-        
+        random_number = random.randint(0,1)
+
         if len(freePlayers) <4:
-            print("hi")
+            
             return Response({"detail": "Not enough players to create a match"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             matchPlayers = []
             for _ in range(4):
-                if freePlayers:
+                if freePlayers and random_number < 0.5:
                     player = freePlayers.pop()
+                    player.inGameFlag = True
+                    player.save()
+                    matchPlayers.append(player)
+                elif (freePlayers and random_number >= 0.5):
+                    player = freePlayers.pop(0)
                     player.inGameFlag = True
                     player.save()
                     matchPlayers.append(player)
