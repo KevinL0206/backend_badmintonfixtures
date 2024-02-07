@@ -53,7 +53,7 @@ class ClubPlayersDisplayCreateView(APIView): # this class will display all the p
 
         # Add club to the request data
         data = request.data.copy()
-        data['club'] = clubInstance
+        data['club'] = clubInstance.id
 
         serializer = ClubPlayersSerializer(data=data)
         print(serializer.is_valid())

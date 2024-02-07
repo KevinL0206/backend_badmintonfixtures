@@ -27,7 +27,8 @@ class club(models.Model):
 
 
 class player(models.Model):
-    playerName = models.CharField(max_length = 255,primary_key = True)
+    playerid = models.AutoField(primary_key=True)
+    playerName = models.CharField(max_length = 255)
     club = models.ForeignKey(club,on_delete=models.CASCADE)
     win = models.IntegerField(default = 0)
     loss =  models.IntegerField(default = 0)
