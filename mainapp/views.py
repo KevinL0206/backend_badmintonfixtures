@@ -138,7 +138,7 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         if request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
         
-        serializer = SessionPlayersSerializer(data=request.data, context={'view': self})
+        serializer = SessionPlayersSerializer(data=request.data, many=True)
         currentUser = username
         sessiondate = timezone.datetime(int(year),int(month),int(day))
         userInstance = User.objects.get(username = currentUser)
