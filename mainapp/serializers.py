@@ -31,8 +31,8 @@ class matchSerializer(serializers.ModelSerializer):
 
 class SessionPlayersSerializer(serializers.Serializer):
     class Meta:
-        model = player
-        fields = ('playerName',)
+        model = session
+        fields = ('players',)
 
 class UpdateMatchSerializer(serializers.ModelSerializer):
     class Meta:

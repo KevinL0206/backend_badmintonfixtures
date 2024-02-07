@@ -146,10 +146,10 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
 
         if serializer.is_valid():
-            players = serializer.validated_data['playerName']
-            for playerName in players:
+            players = serializer.validated_data['players']
+            for player in players:
                 try:
-                    playerInstance = player.objects.get(playerName=playerName,club=clubInstance)
+                    playerInstance = player.objects.get(playerName=player.playerName,club=clubInstance)
                     sessionInstance.players.add(playerInstance)
                 except:
                     return Response({"detail": f"Player {player} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
