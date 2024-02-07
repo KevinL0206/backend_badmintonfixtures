@@ -35,6 +35,7 @@ class player(models.Model):
     elo = models.IntegerField(default = 1200)
     eloHistory = ArrayField(models.IntegerField(),  default=list)
     playhistory = ArrayField(models.CharField(max_length=255), default=list)
+    recentlyPlayed = models.BooleanField(default = False)
     
     def __str__(self):
         return str(self.playerName)

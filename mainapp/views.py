@@ -208,34 +208,73 @@ class CreateMatchView(APIView): # this class will create a match
         clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         freePlayers = list(sessionInstance.players.filter(inGameFlag = False).order_by('elo'))
+
+        freeNotPlayed = list(sessionInstance.players.filter(inGameFlag=False, recentlyPlayed=False).order_by('elo'))
+        freeHavePlayed = list(sessionInstance.players.filter(inGameFlag=False, recentlyPlayed=True).order_by('elo'))
+        
         random_number = random.randint(0,1)
 
         if len(freePlayers) <4:
             
             return Response({"detail": "Not enough players to create a match"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            matchPlayers = []
-            for _ in range(4):
-                if freePlayers and random_number < 0.5:
-                    player = freePlayers.pop()
-                    player.inGameFlag = True
-                    player.save()
-                    matchPlayers.append(player)
-                elif (freePlayers and random_number >= 0.5):
-                    player = freePlayers.pop(0)
-                    player.inGameFlag = True
-                    player.save()
-                    matchPlayers.append(player)
 
-            newMatchInstance = match.objects.create(
-                session = sessionInstance,
-                score = '00-00'
-            )
+            if len(freeNotPlayed) >= 4:
+                matchPlayers = []
+                for _ in range(4):
+                    if freeNotPlayed and random_number < 0.5:
+                        player = freeNotPlayed.pop()
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
+                    elif (freeNotPlayed and random_number >= 0.5):
+                        player = freeNotPlayed.pop(0)
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
 
-            newMatchInstance.team1.add(matchPlayers[0],matchPlayers[3])
-            newMatchInstance.team2.add(matchPlayers[1],matchPlayers[2])
+                newMatchInstance = match.objects.create(
+                    session = sessionInstance,
+                    score = '00-00'
+                )
 
-            return Response({"detail": "Match created"}, status=status.HTTP_200_OK)
+                newMatchInstance.team1.add(matchPlayers[0],matchPlayers[3])
+                newMatchInstance.team2.add(matchPlayers[1],matchPlayers[2])
+
+                return Response({"detail": "Match created"}, status=status.HTTP_200_OK)
+            else:
+                matchPlayers = []
+                for _ in range(len(freeNotPlayed)):
+                    if freeNotPlayed and random_number < 0.5:
+                        player = freeNotPlayed.pop()
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
+                    elif (freeNotPlayed and random_number >= 0.5):
+                        player = freeNotPlayed.pop(0)
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
+                
+                for _ in range(4-len(freeNotPlayed)):
+                    if freeHavePlayed and random_number < 0.5:
+                        player = freeHavePlayed.pop()
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
+                    elif (freeHavePlayed and random_number >= 0.5):
+                        player = freeHavePlayed.pop(0)
+                        player.inGameFlag = True
+                        player.save()
+                        matchPlayers.append(player)
+
+                matchPlayers = sorted(matchPlayers, key=lambda player: player.elo)
+
+                newMatchInstance.team1.add(matchPlayers[0],matchPlayers[3])
+                newMatchInstance.team2.add(matchPlayers[1],matchPlayers[2])
+
+                return Response({"detail": "Match created"}, status=status.HTTP_200_OK)
+
         
 
 class UpdateMatchView(APIView): # this class will update a match
@@ -253,6 +292,11 @@ class UpdateMatchView(APIView): # this class will update a match
         clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         matchInstance = match.objects.get(session=sessionInstance,matchID=matchID)
+        players = sessionInstance.players.all()
+
+        if len(list(sessionInstance.players.filter(inGameFlag=False, recentlyPlayed=False))) == len(players):
+            for player in players:
+                player.recentlyPlayed = False
 
         team1 = matchInstance.team1
         team2 = matchInstance.team2
@@ -310,24 +354,28 @@ class UpdateMatchView(APIView): # this class will update a match
             playerOneInstance.eloHistory.append(playerOneNewElo)
             playerOneInstance.playhistory.append(sessiondate.strftime("%Y-%m-%d"))
             playerOneInstance.inGameFlag = False
+            playerOneInstance.recentlyPlayed = True
             playerOneInstance.save()
 
             playerTwoInstance.elo = playerTwoNewElo
             playerTwoInstance.eloHistory.append(playerTwoNewElo)
             playerTwoInstance.playhistory.append(sessiondate.strftime("%Y-%m-%d"))
             playerTwoInstance.inGameFlag = False
+            playerTwoInstance.recentlyPlayed = True
             playerTwoInstance.save()
 
             playerThreeInstance.elo = playerThreeNewElo
             playerThreeInstance.eloHistory.append(playerThreeNewElo)
             playerThreeInstance.playhistory.append(sessiondate.strftime("%Y-%m-%d"))
             playerThreeInstance.inGameFlag = False
+            playerThreeInstance.recentlyPlayed = True
             playerThreeInstance.save()
 
             playerFourInstance.elo = playerFourNewElo
             playerFourInstance.eloHistory.append(playerFourNewElo)
             playerFourInstance.playhistory.append(sessiondate.strftime("%Y-%m-%d"))
             playerFourInstance.inGameFlag = False
+            playerFourInstance.recentlyPlayed = True
             playerFourInstance.save()
 
             return Response({"detail": "Match updated"}, status=status.HTTP_200_OK)
