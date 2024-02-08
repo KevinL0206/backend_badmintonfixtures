@@ -288,8 +288,8 @@ class UpdateMatchView(APIView): # this class will update a match
             for playername in players:
                 playername.recentlyPlayed = False
 
-        team1 = matchInstance.team1
-        team2 = matchInstance.team2
+        team1 = matchInstance.team1.all()
+        team2 = matchInstance.team2.all()
 
         playerOneInstance = player.objects.get(playerid = team1[0])
         playerTwoInstance = player.objects.get(playerid = team1[1])
