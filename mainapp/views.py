@@ -189,8 +189,8 @@ class CreateMatchView(APIView): # this class will create a match
             return Response({'message': 'Unauthorized'}, status=401)
         if request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
-        serializer = matchSerializer(data=request.data)
-        print("hi")
+
+
         currentUser = username
         sessiondate = timezone.datetime(int(year),int(month),int(day))
 
@@ -260,6 +260,11 @@ class CreateMatchView(APIView): # this class will create a match
 
                 matchPlayers = sorted(matchPlayers, key=lambda player: player.elo)
 
+                newMatchInstance = match.objects.create(
+                    session = sessionInstance,
+                    score = '00-00'
+                )
+                
                 newMatchInstance.team1.add(matchPlayers[0],matchPlayers[3])
                 newMatchInstance.team2.add(matchPlayers[1],matchPlayers[2])
 
