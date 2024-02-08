@@ -285,20 +285,16 @@ class UpdateMatchView(APIView): # this class will update a match
         players = sessionInstance.players.all()
 
         if len(list(sessionInstance.players.filter(inGameFlag=False, recentlyPlayed=False))) == len(players):
-            for player in players:
-                player.recentlyPlayed = False
+            for playername in players:
+                playername.recentlyPlayed = False
 
         team1 = matchInstance.team1
         team2 = matchInstance.team2
 
-        #Get player names
-        team1_names = [player.playerName for player in team1.all()]
-        team2_names = [player.playerName for player in team2.all()]
-
-        playerOneInstance = player.objects.get(playerName = team1_names[0],club = clubInstance)
-        playerTwoInstance = player.objects.get(playerName = team1_names[1],club = clubInstance)
-        playerThreeInstance = player.objects.get(playerName = team2_names[0],club = clubInstance)
-        playerFourInstance = player.objects.get(playerName = team2_names[1],club = clubInstance)       
+        playerOneInstance = player.objects.get(playerid = team1[0])
+        playerTwoInstance = player.objects.get(playerid = team1[1])
+        playerThreeInstance = player.objects.get(playerid = team2[0])
+        playerFourInstance = player.objects.get(playerid = team2[1])       
 
         if serializer.is_valid() and not matchInstance.completed:
             score = serializer.validated_data['score']
@@ -331,14 +327,9 @@ class UpdateMatchView(APIView): # this class will update a match
             matchInstance.completed = True
             matchInstance.save()
 
-
-            #update win and loss count for each player
-
             #Calculate new ELO rating for each player
             playerOneNewElo,playerTwoNewElo,playerThreeNewElo,playerFourNewElo = calcGameElo(team1,team2,winloss)
 
-
-            
             #Update player ELO
             playerOneInstance.elo = playerOneNewElo
             playerOneInstance.eloHistory.append(playerOneNewElo)
