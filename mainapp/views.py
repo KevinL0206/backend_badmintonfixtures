@@ -7,7 +7,7 @@ from rest_framework import status
 from .serializers import ClubSerializer, ClubPlayersSerializer,SessionSerializer,SessionPlayersSerializer,matchSerializer,UpdateMatchSerializer,PlayerSerializer, SinglePlayerSerializer
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import club,player,match,session
+from .models import club, player,match,session
 from rest_framework.permissions import IsAuthenticated
 from .functions import calcGameElo
 import random
@@ -156,9 +156,9 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
 
         if serializer.is_valid():
             players = serializer.validated_data['players']
-            for player in players:
+            for playername in players:
                 try:
-                    playerInstance = player.objects.get(playerName=player.playerName,club=clubInstance)
+                    playerInstance = player.objects.get(playerName=playername.playerName,club=clubInstance)
                     sessionInstance.players.add(playerInstance)
                 except:
                     return Response({"detail": f"Player {player} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
