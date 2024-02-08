@@ -246,7 +246,7 @@ class CreateMatchView(APIView): # this class will create a match
                         player.save()
                         matchPlayers.append(player)
                 
-                for _ in range(4-len(freeNotPlayed)):
+                for _ in range(4-len(matchPlayers)):
                     if freeHavePlayed and random_number < 0.5:
                         player = freeHavePlayed.pop()
                         player.inGameFlag = True
