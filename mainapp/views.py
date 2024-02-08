@@ -280,6 +280,7 @@ class UpdateMatchView(APIView): # this class will update a match
         currentUser = username
         sessiondate = timezone.datetime(int(year),int(month),int(day))
 
+
         userInstance = User.objects.get(username = currentUser)
         clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
