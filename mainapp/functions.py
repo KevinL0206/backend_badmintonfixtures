@@ -1,20 +1,16 @@
 from .models import *
 
 def calcGameElo(team1,team2,winloss):
-    team1Names = [player.playerName for player in team1.all()]
-    team2Names = [player.playerName for player in team2.all()]
-
-    #Player Names
-    playerOneName = team1Names[0]
-    playerTwoName = team1Names[1]
-    playerThreeName = team2Names[0]
-    playerFourName = team2Names[1]
+    
+    team1_ids = [players.playerid for players in team1]
+    team2_ids = [players.playerid for players in team2]
+    
 
     #Player Instance
-    playerOne = player.objects.get(playerName = playerOneName)
-    playerTwo = player.objects.get(playerName = playerTwoName)
-    playerThree = player.objects.get(playerName = playerThreeName)
-    playerFour = player.objects.get(playerName = playerFourName)
+    playerOne = player.objects.get(playerid = team1_ids[0])
+    playerTwo = player.objects.get(playerid = team1_ids[1])
+    playerThree = player.objects.get(playerid = team2_ids[0])
+    playerFour = player.objects.get(playerid = team2_ids[1])  
 
     #Player ELO rating
     playerOneElo = playerOne.elo

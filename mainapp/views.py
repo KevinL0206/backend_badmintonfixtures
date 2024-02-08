@@ -270,10 +270,12 @@ class CreateMatchView(APIView): # this class will create a match
 class UpdateMatchView(APIView): # this class will update a match
 
     def post(self,request,username,clubname,year, month, day,matchID,format=None):
+        """
         if not request.user.is_authenticated:
             return Response({'message': 'Unauthorized'}, status=401)
         if request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
+        """
         serializer = UpdateMatchSerializer(data=request.data)
         currentUser = username
         sessiondate = timezone.datetime(int(year),int(month),int(day))
@@ -290,18 +292,22 @@ class UpdateMatchView(APIView): # this class will update a match
 
         team1 = matchInstance.team1.all()
         team2 = matchInstance.team2.all()
+        team1_ids = [players.playerid for players in team1]
+        team2_ids = [players.playerid for players in team2]
+        print("team1",team1_ids)
+        
+        playerOneInstance = player.objects.get(playerid = team1_ids[0])
+        playerTwoInstance = player.objects.get(playerid = team1_ids[1])
+        playerThreeInstance = player.objects.get(playerid = team2_ids[0])
+        playerFourInstance = player.objects.get(playerid = team2_ids[1])    
 
-        playerOneInstance = player.objects.get(playerid = team1[0].playerid)
-        playerTwoInstance = player.objects.get(playerid = team1[1].playerid)
-        playerThreeInstance = player.objects.get(playerid = team2[0].playerid)
-        playerFourInstance = player.objects.get(playerid = team2[1].playerid)       
 
         if serializer.is_valid() and not matchInstance.completed:
             score = serializer.validated_data['score']
             
             #Get Match Score
             team1Score, team2Score = map(int, score.split('-'))
-
+            
             if team1Score > 21  and team2Score < team1Score - 2 or team2Score > 21 and team1Score < team2Score - 2:
                 return Response({"detail": "Invalid score"}, status=status.HTTP_400_BAD_REQUEST)
             if team1Score < 0 or team2Score < 0:
