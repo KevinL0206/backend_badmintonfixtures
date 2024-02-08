@@ -24,6 +24,7 @@ class SessionSerializer(serializers.ModelSerializer):
         fields = ('date',)    
 
 class matchSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = match
         fields = ('matchID','team1','team2','score','completed')

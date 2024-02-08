@@ -110,10 +110,25 @@ class SessionDetailView(APIView): # this class will display all the players and 
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         matchInstance = match.objects.filter(session=sessionInstance)
 
+        teamOne = matchInstance.values_list('team1', flat=True)
+        teamTwo = matchInstance.values_list('team2', flat=True)
+
+        teamOneNames = []
+        teamTwoNames = []
+
+        for playerid in teamOne:
+            playerInstance = player.objects.get(playerid=playerid)
+            teamOneNames.append(playerInstance.playerName)
+
+        for playerid in teamTwo:
+            playerInstance = player.objects.get(playerid=playerid)
+            teamTwoNames.append(playerInstance.playerName)
 
         matchserializer = matchSerializer(matchInstance,many=True) # return all the matches in the session
         return Response({
-            "matches":matchserializer.data
+            "matches":matchserializer.data,
+            "teamOne":teamOneNames,
+            "teamTwo":teamTwoNames
         })
 
 class AddPlayerToSessionView(APIView): # this class will add players to a session
