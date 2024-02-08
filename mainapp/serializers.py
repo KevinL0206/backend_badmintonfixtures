@@ -31,11 +31,11 @@ class matchSerializer(serializers.ModelSerializer):
         fields = ('matchID','team1','team2','score','completed','team1_player_names', 'team2_player_names')
         read_only_fields = ('matchID',)
 
-        def get_team1_player_names(self, obj):
-            return obj.get_team1_player_names()
+    def get_team1_player_names(self, obj):
+        return obj.get_team1_player_names()
 
-        def get_team2_player_names(self, obj):
-            return obj.get_team2_player_names()
+    def get_team2_player_names(self, obj):
+        return obj.get_team2_player_names()
 
 class SessionPlayersSerializer(serializers.Serializer):
     players = serializers.ListField(child=serializers.CharField())
