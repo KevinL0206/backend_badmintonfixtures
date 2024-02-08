@@ -291,10 +291,10 @@ class UpdateMatchView(APIView): # this class will update a match
         team1 = matchInstance.team1.all()
         team2 = matchInstance.team2.all()
 
-        playerOneInstance = player.objects.get(playerid = team1[0])
-        playerTwoInstance = player.objects.get(playerid = team1[1])
-        playerThreeInstance = player.objects.get(playerid = team2[0])
-        playerFourInstance = player.objects.get(playerid = team2[1])       
+        playerOneInstance = player.objects.get(playerid = team1[0].playerid)
+        playerTwoInstance = player.objects.get(playerid = team1[1].playerid)
+        playerThreeInstance = player.objects.get(playerid = team2[0].playerid)
+        playerFourInstance = player.objects.get(playerid = team2[1].playerid)       
 
         if serializer.is_valid() and not matchInstance.completed:
             score = serializer.validated_data['score']
