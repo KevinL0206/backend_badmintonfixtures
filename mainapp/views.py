@@ -110,10 +110,9 @@ class SessionDetailView(APIView): # this class will display all the players and 
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
         matchInstance = match.objects.filter(session=sessionInstance)
 
-        serializer = SessionPlayersSerializer(sessionInstance) # return all the players in the session
+
         matchserializer = matchSerializer(matchInstance,many=True) # return all the matches in the session
         return Response({
-            "session":serializer.data,
             "matches":matchserializer.data
         })
 
