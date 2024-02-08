@@ -165,30 +165,22 @@ class RemovePlayerFromSessionView(APIView): # this class will remove players fro
         return Response(serializer.data)
     
     def post(self,request,username,clubname,year, month, day,format=None):
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated or request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
-        if request.user.username != username:
-            return Response({'message': 'Unauthorized'}, status=401)
-        serializer = SessionPlayersSerializer(data=request.data)
-        print(serializer)
-        currentUser = username
-        sessiondate = timezone.datetime(int(year),int(month),int(day))
-        userInstance = User.objects.get(username = currentUser)
-        clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
+
+        sessiondate = timezone.datetime(int(year), int(month), int(day))
+        userInstance = User.objects.get(username=username)
+        clubInstance = club.objects.get(clubName=clubname, clubOrganiser=userInstance)
         sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
 
-        if serializer.is_valid():
-            players = serializer.validated_data['players']
-            
-            for playername in players:
-                try:
-                    playerInstance = player.objects.get(playerName=playername,club=clubInstance)
-                    sessionInstance.players.remove(playerInstance)
-                except:
-                    return Response({"detail": f"Player {player} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-            return Response({"detail": "Players removed from session"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for players in request.data['players']:
+            try:
+                playerInstance = player.objects.get(playerName=players, club=clubInstance)
+                sessionInstance.players.remove(playerInstance)
+            except:
+                return Response({"detail": f"Player {players} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail": "Players removed to session"}, status=status.HTTP_200_OK)
 
 class CreateMatchView(APIView): # this class will create a match
 
