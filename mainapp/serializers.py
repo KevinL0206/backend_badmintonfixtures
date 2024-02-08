@@ -30,8 +30,9 @@ class matchSerializer(serializers.ModelSerializer):
         read_only_fields = ('matchID',)
 
 class SessionPlayersSerializer(serializers.Serializer):
+    players = serializers.ListField(child=serializers.CharField())
+
     class Meta:
-        model = session
         fields = ('players',)
 
 class UpdateMatchSerializer(serializers.ModelSerializer):

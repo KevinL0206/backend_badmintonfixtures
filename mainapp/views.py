@@ -140,22 +140,16 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         sessiondate = timezone.datetime(int(year), int(month), int(day))
         userInstance = User.objects.get(username=username)
         clubInstance = club.objects.get(clubName=clubname, clubOrganiser=userInstance)
+        sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
 
-        playerInstances = []
-        for playername in request.data.get('players', []):
+        for players in request.data['players']:
             try:
-                playerInstance = player.objects.get(playerName=playername, club=clubInstance)
-                playerInstances.append(model_to_dict(playerInstance))
-            except player.DoesNotExist:
-                return Response({"detail": f"Player {playername} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = SessionPlayersSerializer(data=playerInstances, many=True)
-        if serializer.is_valid():
-            sessionInstance = session.objects.get(club=clubInstance, date=sessiondate)
-            sessionInstance.players.add(*serializer.validated_data['players'])
-            return Response({"detail": "Players added to session"}, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                playerInstance = player.objects.get(playerName=players, club=clubInstance)
+                sessionInstance.players.add(playerInstance)
+            except:
+                return Response({"detail": f"Player {players} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail": "Players added to session"}, status=status.HTTP_200_OK)
 
 class RemovePlayerFromSessionView(APIView): # this class will remove players from a session
 
