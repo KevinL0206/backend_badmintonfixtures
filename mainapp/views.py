@@ -132,38 +132,28 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         serializer = ClubPlayersSerializer(otherPlayers, many=True)
         return Response(serializer.data)
 
-    def post(self,request,username,clubname,year, month, day,format=None): # this function will add players to a session
-        if not request.user.is_authenticated:
+    def post(self, request, username, clubname, year, month, day, format=None):
+        if not request.user.is_authenticated or request.user.username != username:
             return Response({'message': 'Unauthorized'}, status=401)
-        if request.user.username != username:
-            return Response({'message': 'Unauthorized'}, status=401)
-        
-        currentUser = username
-        sessiondate = timezone.datetime(int(year),int(month),int(day))
-        userInstance = User.objects.get(username = currentUser)
-        clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
-        data=[]
-        for playername in request.data:
-            playerInstance = player.objects.get(playerName=playername,club=clubInstance)
-            data.append(playerInstance)
 
-        serializer = SessionPlayersSerializer(data=data, many=True)
-        currentUser = username
-        sessiondate = timezone.datetime(int(year),int(month),int(day))
-        userInstance = User.objects.get(username = currentUser)
-        clubInstance = club.objects.get(clubName = clubname,clubOrganiser = userInstance)
-        sessionInstance = session.objects.get(club=clubInstance,date=sessiondate)
+        sessiondate = timezone.datetime(int(year), int(month), int(day))
+        userInstance = User.objects.get(username=username)
+        clubInstance = club.objects.get(clubName=clubname, clubOrganiser=userInstance)
 
+        playerInstances = []
+        for playername in request.data.get('players', []):
+            try:
+                playerInstance = player.objects.get(playerName=playername, club=clubInstance)
+                playerInstances.append(playerInstance)
+            except player.DoesNotExist:
+                return Response({"detail": f"Player {playername} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = SessionPlayersSerializer(data=playerInstances, many=True)
         if serializer.is_valid():
-            players = serializer.validated_data['players']
-            for playername in players:
-                try:
-                    playerInstance = player.objects.get(playerName=playername.playerName,club=clubInstance)
-                    sessionInstance.players.add(playerInstance)
-                except:
-                    return Response({"detail": f"Player {player} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
+            sessionInstance = session.objects.get(club=clubInstance, date=sessiondate)
+            sessionInstance.players.add(*serializer.validated_data['players'])
             return Response({"detail": "Players added to session"}, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RemovePlayerFromSessionView(APIView): # this class will remove players from a session
