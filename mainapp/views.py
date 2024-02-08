@@ -295,8 +295,7 @@ class UpdateMatchView(APIView): # this class will update a match
         team2 = matchInstance.team2.all()
         team1_ids = [players.playerid for players in team1]
         team2_ids = [players.playerid for players in team2]
-        print("team1",team1_ids)
-        
+
         playerOneInstance = player.objects.get(playerid = team1_ids[0])
         playerTwoInstance = player.objects.get(playerid = team1_ids[1])
         playerThreeInstance = player.objects.get(playerid = team2_ids[0])
@@ -365,6 +364,7 @@ class UpdateMatchView(APIView): # this class will update a match
             playerFourInstance.inGameFlag = False
             playerFourInstance.recentlyPlayed = True
             playerFourInstance.save()
+
 
             return Response({"detail": "Match updated"}, status=status.HTTP_200_OK)
         else:
