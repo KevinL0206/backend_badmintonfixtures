@@ -292,7 +292,7 @@ class UpdateMatchView(APIView): # this class will update a match
         matchInstance = match.objects.get(session=sessionInstance,matchID=matchID)
         players = sessionInstance.players.all()
 
-        if len(list(sessionInstance.players.filter(inGameFlag=False, recentlyPlayed=False))) == len(players):
+        if len(list(sessionInstance.players.filter(recentlyPlayed=True))) == len(players):
             for playername in players:
                 playername.recentlyPlayed = False
                 playername.save()
