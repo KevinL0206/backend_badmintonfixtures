@@ -11,6 +11,7 @@ from .models import club, player,match,session
 from rest_framework.permissions import IsAuthenticated
 from .functions import calcGameElo
 import random
+from django.forms.models import model_to_dict
 
 class ClubDisplayCreateView(APIView): # this class will display all the clubs created by the user and also create a new club
     def get(self, request, username, format=None): # this function will return all the clubs created by the user
@@ -144,7 +145,7 @@ class AddPlayerToSessionView(APIView): # this class will add players to a sessio
         for playername in request.data.get('players', []):
             try:
                 playerInstance = player.objects.get(playerName=playername, club=clubInstance)
-                playerInstances.append(playerInstance)
+                playerInstances.append(model_to_dict(playerInstance))
             except player.DoesNotExist:
                 return Response({"detail": f"Player {playername} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
